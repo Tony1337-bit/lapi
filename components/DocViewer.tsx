@@ -129,6 +129,15 @@ export const DocViewer: React.FC<DocViewerProps> = ({ data }) => {
                     </table>
                   </div>
                 );
+              case "subheader":
+                return (
+                  <div
+                    key={idx}
+                    className="text-gray-400 leading-relaxed text-base italic pl-4 border-l-2 border-glass-border"
+                    dangerouslySetInnerHTML={{ __html: block.content }}
+                  />
+                );
+
               default:
                 return null;
             }

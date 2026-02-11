@@ -1,334 +1,406 @@
 import { NavItem, DocSection } from "./types";
 
-const INLINE_CODE ="bg-glass-300 px-1.5 py-0.5 rounded text-indigo-300 font-mono text-sm border border-glass-border";
+// ============================================================================
+// STYLING CONSTANTS
+// ============================================================================
+const STYLES = {
+  inlineCode:
+    "bg-glass-300 px-1.5 py-0.5 rounded text-indigo-300 font-mono text-sm border border-glass-border",
+  emphasis: "text-white font-semibold",
+} as const;
+
+// ============================================================================
+// HELPER FUNCTIONS - Make creating content blocks easier
+// ============================================================================
+
+const code = (codeStr: string) => `<code class="${STYLES.inlineCode}">${codeStr}</code>`;
+
+const text = (content: string) => ({ type: "text" as const, content });
+
+const codeBlock = (content: string) => ({ type: "code" as const, content });
+
+const list = (items: string[]) => ({ type: "list" as const, items });
+
+const header = (text: string) => ({ type: "header" as const, header: [text] });
+
+// Add this with your other helpers:
+const link = (text: string, url: string) => `<a href="${url}" class="text-indigo-400 hover:text-indigo-300 underline">${text}</a>`;
+
+const subheader = (text: string) => ({
+  type: "subheader" as const,
+  content: text,
+});
+
+const table = (header: string[], rows: Array<[string, string, string]>) => ({
+  type: "table" as const,
+  items: { header, rows },
+});
+
+// Helper to create parameter tables (common pattern)
+const paramTable = (
+  params: Array<{ name: string; type: string; description: string }>,
+) => {
+  return table(
+    ["Name", "Type", "Description"],
+    params.map((p) => [p.name, code(p.type), p.description]),
+  );
+};
+
+// ============================================================================
+// DOCUMENTATION SECTIONS
+// ============================================================================
 
 export const DOCS_DATA: Record<string, DocSection> = {
+  // --------------------------------------------------------------------------
+  // GETTING STARTED
+  // --------------------------------------------------------------------------
   intro: {
     id: "intro",
     title: "Introduction to LAPI",
     blocks: [
-      {
-        type: "text",
-        content:
-          "A lightweight helper library built on top of the GameSense UI, client, and entity APIs. lapi focuses on:",
-      },
-      {
-        type: "list",
-        items: [
-          "Cleaner UI creation",
-          "Object‑oriented access to UI elements",
-          "Easy config save/load/export/import",
-          "Small utility helpers (velocity, printing, clantag, events)",
-        ],
-      },
+      text(
+        "A lightweight helper library built on top of the GameSense UI, client, and entity APIs. lapi focuses on:",
+      ),
+      list([
+        "Cleaner UI creation",
+        "Object‑oriented access to UI elements",
+        "Easy config save/load/export/import",
+        "Small utility helpers (velocity, printing, clantag, events)",
+      ]),
     ],
   },
+
   installation: {
     id: "installation",
     title: "Installation",
     blocks: [
-      {
-        type: "text",
-        content: `Place <span class="${INLINE_CODE}">lapi.lua</span> in your gamesense directory and require it in your script:`,
-      },
-      {
-        type: "code",
-        content: 'require("gamesense/lapi")',
-      },
-      {
-        type: "text",
-        content: `This will load <span class="${INLINE_CODE}">lapi</span> and expose several global helpers:`,
-      },
-      {
-        type: "list",
-        items: [
-          `<span class="${INLINE_CODE}">lui</span> – UI wrapper (extends <span class="${INLINE_CODE}">ui</span>)`,
-          `<span class="${INLINE_CODE}">utils</span> – utility helper functions`,
-          `<span class="${INLINE_CODE}">events</span> – event wrapper for <span class="${INLINE_CODE}">client</span> callbacks`,
-        ],
-      },
-      {
-        type: "text",
-        content:
-          'Together, these form the <strong class="text-white font-semibold">Libre Application Programming Interface</strong>.',
-      },
+      text(
+        `Place ${code("lapi.lua")} in your gamesense directory and require it in your script:`,
+      ),
+      codeBlock('require("gamesense/lapi")'),
+      text(`This will load ${code("lapi")} and expose several global helpers:`),
+      list([
+        `${code("lui")} – UI wrapper (extends ${code("ui")})`,
+        `${code("utils")} – utility helper functions`,
+        `${code("events")} – event wrapper for ${code("client")} callbacks`,
+      ]),
+      text(
+        `Together, these form the <strong class="${STYLES.emphasis}">Libre Application Programming Interface</strong>.`,
+      ),
     ],
   },
+
+  // --------------------------------------------------------------------------
+  // UI ELEMENTS
+  // --------------------------------------------------------------------------
   "ui-basics": {
     id: "ui-basics",
-    title: "Ui Elements",
+    title: "UI Elements",
     description: "Each UI element returns an object with helper methods.",
     blocks: [
-      // [groups]
-      {
-        type: "header",
-        header: ["Groups"],
-      },
-      {
-        type: "text",
-        content: `Groups are used to organize UI elements by tab and container.`,
-      },
-      {
-        type: "code",
-        content: "local group = lui.group(tab: string, container: string)",
-      },
-      {
-        type: "table",
-        items: {
-          header: ["Name", "Type", "Description"],
-          rows: [
-            ["tab", `<code class="${INLINE_CODE}">string</code>`, "Tab name"],
-            [
-              "container",
-              `<code class="${INLINE_CODE}">string</code>`,
-              "Container name",
-            ],
-          ],
+      // Groups
+      header("Groups"),
+      text("Groups are used to organize UI elements by tab and container."),
+      codeBlock("local group = lui.group(tab: string, container: string)"),
+      paramTable([
+        { name: "tab", type: "string", description: "Tab name" },
+        { name: "container", type: "string", description: "Container name" },
+      ]),
+      text(
+        "All elements created inside a group are automatically registered for config saving.",
+      ),
+
+      // Switch
+      header("Switch (Checkbox)"),
+      codeBlock("group:switch(name: string[, init: boolean])"),
+      paramTable([
+        { name: "name", type: "string", description: "Item name" },
+        { name: "init", type: "boolean", description: "Default value" },
+      ]),
+
+      // Combo
+      header("Combo"),
+      codeBlock("group:combo(name: string, items: any[, ...])"),
+      paramTable([
+        { name: "name", type: "string", description: "Item name" },
+        {
+          name: "init",
+          type: "any",
+          description:
+            "One or more comma separated values that will be added to the combo. Alternatively, a table of strings that will be added",
         },
-      },
-      {
-        type: "text",
-        content: `All elements created inside a group are automatically registered for config saving.`,
-      },
-      // [groups]
-      {
-        type: "header",
-        header: ["Switch (Checkbox)"],
-      },
-      {
-        type: "code",
-        content: "group:switch(name: string[, init: boolean]):",
-      },
-      {
-        type: "table",
-        items: {
-          header: ["Name", "Type", "Description"],
-          rows: [
-            ["name", `<code class="${INLINE_CODE}">string</code>`, "Item name"],
-            [
-              "init",
-              `<code class="${INLINE_CODE}">boolean</code>`,
-              "Default value",
-            ],
-          ],
+      ]),
+
+      // Slider
+      header("Slider"),
+      codeBlock(
+        "group:slider(name: string, min: number, max: number[, init: number])",
+      ),
+      paramTable([
+        { name: "name", type: "string", description: "Item name" },
+        { name: "min", type: "number", description: "Minimum value" },
+        { name: "max", type: "number", description: "Maximum value" },
+        { name: "init", type: "number", description: "Default value" },
+      ]),
+
+      // Selectable
+      header("Selectable (Multiselect)"),
+      codeBlock("group:selectable(name: string, items: any [, ...])"),
+      paramTable([
+        { name: "name", type: "string", description: "Item name" },
+        {
+          name: "items",
+          type: "any",
+          description:
+            "One or more comma separated values that will be added to the selectable. Alternatively, a table of strings that will be added",
         },
-      },
-      {
-        type: "header",
-        header: ["Combo"],
-      },
-      {
-        type: "code",
-        content: "group:combo(name: string, items: any[, ...])",
-      },
-      {
-        type: "table",
-        items: {
-          header: ["Name", "Type", "Description"],
-          rows: [
-            ["name", `<code class="${INLINE_CODE}">string</code>`, "Item name"],
-            [
-              "init",
-              `<code class="${INLINE_CODE}">any</code>`,
-              `One or more comma separated values that will be added to the combo. Alternatively, a table of strings that will be added`,
-            ],
-          ],
+      ]),
+
+      // List
+      header("List"),
+      codeBlock("group:list(name: string, items: any [, ...])"),
+      paramTable([
+        { name: "name", type: "string", description: "Item name" },
+        {
+          name: "items",
+          type: "any",
+          description:
+            "One or more comma separated values that will be added to the list. Alternatively, a table of strings that will be added",
         },
-      },
-      {
-        type: "header",
-        header: ["Slider"],
-      },
-      {
-        type: "code",
-        content:
-          "group:slider(name: string, min: number, max: number[, init: number])",
-      },
-      {
-        type: "table",
-        items: {
-          header: ["Name", "Type", "Description"],
-          rows: [
-            ["name", `<code class="${INLINE_CODE}">string</code>`, "Item name"],
-            [
-              "min",
-              `<code class="${INLINE_CODE}">number</code>`,
-              "Minimum value",
-            ],
-            [
-              "max",
-              `<code class="${INLINE_CODE}">number</code>`,
-              "Maximum value",
-            ],
-            [
-              "init",
-              `<code class="${INLINE_CODE}">number</code>`,
-              "Default value",
-            ],
-          ],
+      ]),
+
+      // Color Picker
+      header("Color Picker"),
+      codeBlock("group:color_picker(name: string[, color: color])"),
+      paramTable([
+        { name: "name", type: "string", description: "Item name" },
+        {
+          name: "color",
+          type: "color",
+          description: "Optional. Initial color value",
         },
-      },
-      {
-        type: "header",
-        header: ["Selectable (Multiselect)"],
-      },
-      {
-        type: "code",
-        content: "group:selectable(name: string, items: any [, ...])",
-      },
-      {
-        type: "table",
-        items: {
-          header: ["Name", "Type", "Description"],
-          rows: [
-            ["name", `<code class="${INLINE_CODE}">string</code>`, "Item name"],
-            [
-              "items",
-              `<code class="${INLINE_CODE}">any</code>`,
-              "One or more comma separated values that will be added to the selectable. Alternatively, a table of strings that will be added",
-            ],
-          ],
+      ]),
+
+      // Label
+      header("Label"),
+      codeBlock("group:label(name: string)"),
+      paramTable([{ name: "name", type: "string", description: "Label name" }]),
+
+      // Button
+      header("Button"),
+      codeBlock("group:button(name: string, callback: function)"),
+      paramTable([
+        { name: "name", type: "string", description: "Item name" },
+        {
+          name: "callback",
+          type: "function",
+          description:
+            "Callback function to be executed when the button is pressed",
         },
-      },
-      {
-        type: "header",
-        header: ["List"],
-      },
-      {
-        type: "code",
-        content: "group:list(name: string, items: any [, ...])",
-      },
-      {
-        type: "table",
-        items: {
-          header: ["Name", "Type", "Description"],
-          rows: [
-            ["name", `<code class="${INLINE_CODE}">string</code>`, "Item name"],
-            [
-              "items",
-              `<code class="${INLINE_CODE}">any</code>`,
-              "One or more comma separated values that will be added to the list. Alternatively, a table of strings that will be added",
-            ],
-          ],
-        },
-      },
-      {
-        type: "header",
-        header: ["Color Picker"],
-      },
-      {
-        type: "code",
-        content: "group:color_picker(name: string[, color: color])",
-      },
-      {
-        type: "table",
-        items: {
-          header: ["Name", "Type", "Description"],
-          rows: [
-            ["name", `<code class="${INLINE_CODE}">string</code>`, "Item name"],
-            [
-              "color",
-              `<code class="${INLINE_CODE}">color</code>`,
-              "Optional. Initial color value",
-            ],
-          ],
-        },
-      },
-      {
-        type: "header",
-        header: ["Label"],
-      },
-      {
-        type: "code",
-        content: "group:label(name: string)",
-      },
-      {
-        type: "table",
-        items: {
-          header: ["Name", "Type", "Description"],
-          rows: [
-            [
-              "name",
-              `<code class="${INLINE_CODE}">string</code>`,
-              "Label name",
-            ],
-          ],
-        },
-      },
-      {
-        type: "header",
-        header: ["Button"],
-      },
-      {
-        type: "code",
-        content: "group:button(name: string, callback: function)",
-      },
-      {
-        type: "table",
-        items: {
-          header: ["Name", "Type", "Description"],
-          rows: [
-            ["name", `<code class="${INLINE_CODE}">string</code>`, "Item name"],
-            [
-              "callback",
-              `<code class="${INLINE_CODE}">function</code>`,
-              "Callback function to be executed when the button is pressed",
-            ],
-          ],
-        },
-      },
-      {
-        type: "header",
-        header: ["Input"],
-      },
-      {
-        type: "code",
-        content: "group:input(name: string)",
-      },
-      {
-        type: "table",
-        items: {
-          header: ["Name", "Type", "Description"],
-          rows: [
-            ["name", `<code class="${INLINE_CODE}">string</code>`, "Item name"],
-          ],
-        },
-      },
-      {
-        type: "header",
-        header: ["Hotkey"],
-      },
-      {
-        type: "code",
-        content: "group:hotkey(name: string)",
-      },
-      {
-        type: "table",
-        items: {
-          header: ["Name", "Type", "Description"],
-          rows: [
-            ["name", `<code class="${INLINE_CODE}">string</code>`, "Item name"],
-          ],
-        },
-      },
+      ]),
+
+      // Input
+      header("Input"),
+      codeBlock("group:input(name: string)"),
+      paramTable([{ name: "name", type: "string", description: "Item name" }]),
+
+      // Hotkey
+      header("Hotkey"),
+      codeBlock("group:hotkey(name: string)"),
+      paramTable([{ name: "name", type: "string", description: "Item name" }]),
     ],
   },
+
+  // --------------------------------------------------------------------------
+  // UI OBJECT METHODS
+  // --------------------------------------------------------------------------
   "ui-objects": {
     id: "ui-objects",
     title: "UI Object Methods",
     description: "Every UI element supports the following methods:",
     blocks: [
-      {
-        type: "text",
-        content: `All UI objects support the following methods:`,
-      },
-      {
-        type: "code",
-        content: ``,
-      },
+      text("All UI objects support the following methods:"),
+      header(":get([option])"),
+      text("Returns the element value."),
+      subheader(
+        "• For multiselect, passing an option checks if it is selected.",
+      ),
+      codeBlock(`if multi:get("A") then
+  -- option A selected
+end`),
+      header(":set(value)"),
+      text("Sets the element value."),
+      codeBlock(`--int for the slider
+slider:set(50)
+--bool for the switch
+switch:set(true)
+--item name for combo / multiselect
+combo:set("A")
+multi:set("B")`),
+
+      header(":visible(value)"),
+      text("Controls visibility."),
+      list([
+        "boolean – static visibility",
+        "function – dynamic visibility based on custom logic",
+        "object – visibility follows another UI object",
+      ]),
+      codeBlock(`slider:visible(function()
+    return enable:get()
+end)`),
+      text(
+        "Calling without arguments returns current visibility (if supported).",
+      ),
+
+      header(":callback(func)"),
+      text(
+        "Sets a callback function that is called when the element value changes.",
+      ),
+      codeBlock(`switch:callback(function(value)
+    print("Switch value changed to", value)
+end)`),
+
+      header(":add_callback(event, fn"),
+      text("Registers a client event callback."),
+      subheader("• For checkboxes, the callback only fires when enabled."),
+      codeBlock(`enable:add_callback("paint_ui", function(self)
+-- runs every frame while enabled
+end)`),
+      header(":disabled(state)"),
+      text("Enables or disables the element."),
+      codeBlock(`-- Disable the slider
+slider:disabled(true)
+-- Re-enable the slider
+slider:disabled(false)`),
+
+      header(":type()"),
+      text("Returns the element type"),
+      header(":id()"),
+      text("Returns the raw UI reference."),
+
+      header("Finding Existing UI Elements"),
+      text("You can wrap existing GameSense UI elements:"),
+      codeBlock(`local ref = lui.find("misc", "settings", "menu color")`),
+
+      header("Chaining method"),
+      text(
+        "All UI objects support method chaining, allowing you to configure visibility, callbacks, and events in a single fluent statement.",
+      ),
+      codeBlock(`local damage = group:slider("Damage", 0, 100, 50)
+    :visible(enable)
+    :callback(function(obj)
+        print("Damage: " .. obj:get())
+    end)
+    :add_callback("paint", function(obj)
+    -- draw something
+    end)`),
+    ],
+  },
+
+  config_system: {
+    id: "config_system",
+    title: "Config System",
+    description: "All registered UI elements are automatically tracked.",
+    blocks: [
+      header("Save"),
+      codeBlock(`local config = lui.save()`),
+
+      header("Load"),
+      codeBlock(`lui.load(config)`),
+
+      header("Export (Clipboard)"),
+      codeBlock(`lui.export(prefix: string)`),
+      paramTable([
+        {
+          name: "prefix",
+          type: "string",
+          description: "Prefix to use for exported configs",
+        },
+      ]),
+      text("Exports a Base64‑encoded JSON string to clipboard."),
+
+      header("Import"),
+      codeBlock(`lui.import()`),
+      list([
+        "Reads from clipboard by default",
+        "Accepts raw tables or encoded strings",
+      ]),
+
+      header("Reset"),
+      codeBlock(`lui.reset()`),
+      text("Clears all registered elements."),
+    ],
+  },
+
+  utils: {
+    id: "utils",
+    title: "Utils",
+    description: "A collection of helper functions for common tasks.",
+    blocks: [
+      header("Velocity"),
+      codeBlock(`local speed = utils.get_velocity(entity.get_local_player())`),
+      text("Returns 2D movement speed."),
+
+      header("Colored Print"),
+      codeBlock(`utils.print(prefix: string, message: string)`),
+      paramTable([
+        { name: "prefix", type: "string", description: "Message prefix" },
+        { name: "message", type: "string", description: "Message content" },
+      ]),
+
+      header("Player Name"),
+      codeBlock("utils.name()"),
+      text("Returns the Steam username."),
+
+      header("Clantag"),
+      codeBlock(`utils.clantag("lapi", 0.5)`),
+      text("Cycles the clantag text over time."),
+    ],
+  },
+
+  events_wrapper: {
+    id: "events",
+    title: "Events Wrapper",
+    description: "Events provides a cleaner syntax for client events.",
+    blocks: [
+      header("Events set"),
+      codeBlock(`events.[event_name]:set(function)`),
+      paramTable([
+        { name: "event_name", type: "string", description: "Event name" },
+        {
+          name: "function",
+          type: "function",
+          description: "Callback function",
+        },
+      ]),
+      text("Registers a callback for a client event"),
+      text(`All ${link("supported events", "https://gamesense-docs.pages.dev/docs/events/aim_fire")} here`),
+
+      header("Events Unset"),
+      codeBlock(`events.[event_name]:unset(function)`),
+      paramTable([
+        { name: "event_name", type: "string", description: "Event name" },
+        {
+          name: "function",
+          type: "function",
+          description: "Callback function",
+        },
+      ]),
+      text("Unregisters a previously registered event callback."),
+
+      header("Note"),
+      list([
+        "Designed for simplicity, not strict abstraction",
+        "Works best as a helper layer, not a full framework",
+        "Safe to mix with raw ui, client, and entity calls"
+      ])
     ],
   },
 };
+
+// ============================================================================
+// NAVIGATION STRUCTURE
+// ============================================================================
 
 export const NAV_ITEMS: NavItem[] = [
   {
@@ -345,17 +417,10 @@ export const NAV_ITEMS: NavItem[] = [
     children: [
       { id: "ui-basics", label: "UI Elements" },
       { id: "ui-objects", label: "UI Object Methods" },
-      // { id: "render-primitives", label: "Render" },
-      // { id: "entity-mgmt", label: "Entity" },
+      { id: "config_system", label: "Config System" },
+      { id: "utils", label: "Utils" },
+      { id: "events_wrapper", label: "Events Wrapper" },
       // { id: "rage-logic", label: "Ragebot" },
     ],
   },
-  // {
-  //   id: "resources",
-  //   label: "Resources",
-  //   children: [
-  //     { id: "changelog", label: "Changelog" },
-  //     { id: "community", label: "Community" },
-  //   ],
-  // },
 ];

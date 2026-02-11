@@ -3,6 +3,7 @@ export type DocBlock =
   | { type: 'code'; content: string; language?: string; title?: string }
   | { type: 'list'; items: string[] }
   | { type: 'header'; header: string[] }
+  | { type: 'subheader'; content: string }
   | { type: 'table'; items: { header: string[]; rows: string[][] } };
 
 export interface DocSection {
@@ -23,4 +24,5 @@ export interface SearchResult {
   id: string;
   title: string;
   preview: string;
+  score?: number;
 }
