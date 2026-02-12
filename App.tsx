@@ -292,7 +292,7 @@ export default function App() {
                 </a>
 
                 <a
-                  href="https://github.com/yourusername/lapi"
+                  href="https://github.com/Tony1337-bit/lapi/blob/main/lapi.lua"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-between p-4 bg-glass-200 hover:bg-glass-300 border border-glass-border rounded-lg transition-colors group"
