@@ -278,9 +278,9 @@ export default function App() {
               {/* Download Options */}
               <div className="space-y-3">
                 <a
-                  href="library/lapi.lua"
-                  download="lapi.lua"
-                  className="flex items-center justify-between p-4 bg-glass-200 hover:bg-glass-300 border border-glass-border rounded-lg transition-colors group"
+                  // href="library/lapi.lua"
+                  // download="lapi.lua"
+                  // className="flex items-center justify-between p-4 bg-glass-200 hover:bg-glass-300 border border-glass-border rounded-lg transition-colors group"
                 >
                   <div>
                     <div className="text-white font-medium text-sm">Direct Download</div>
