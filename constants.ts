@@ -134,13 +134,17 @@ export const DOCS_DATA: Record<string, DocSection> = {
       // Slider
       header("Slider"),
       codeBlock(
-        "group:slider(name: string, min: number, max: number[, init: number])",
+        "group:slider(name: string, min: number, max: number[, init: number, show_tooltip: boolean, unit: string, scale: number, tooltip: string])",
       ),
       paramTable([
         { name: "name", type: "string", description: "Item name" },
         { name: "min", type: "number", description: "Minimum value" },
         { name: "max", type: "number", description: "Maximum value" },
         { name: "init", type: "number", description: "Default value" },
+        { name: "show_tooltip", type: "boolean", description: "Boolean. true if the slider should display its current value." },
+        { name: "unit", type: "string", description: "	String that is two characters or less. This will be appended to the display value. For example, 'px' for pixels or '%' for a percentage." },
+        { name: "scale", type: "number", description: "The display value will be multiplied by this scale. For example, 0.1 will make a slider with the range [0-1800] show as 0.0-180.0 with one decimal place." },
+        { name: "tooltip", type: "string", description: "Table used to override the tooltip for the specified values. The key must be within min-max. The value is a string that will be shown instead of the numeric value whenever that value is selected." },
       ]),
 
       // Selectable
