@@ -278,21 +278,7 @@ export default function App() {
               {/* Download Options */}
               <div className="space-y-3">
                 <a
-                  // href="library/lapi.lua"
-                  // download="lapi.lua"
-                  // className="flex items-center justify-between p-4 bg-glass-200 hover:bg-glass-300 border border-glass-border rounded-lg transition-colors group"
-                >
-                  <div>
-                    <div className="text-white font-medium text-sm">Direct Download</div>
-                    <div className="text-gray-400 text-xs mt-1">lapi.lua (Latest version)</div>
-                  </div>
-                  <svg className="w-5 h-5 text-indigo-400 group-hover:text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                  </svg>
-                </a>
-
-                <a
-                  href="https://github.com/Tony1337-bit/lapi/blob/main/lapi.lua"
+                  href="https://github.com/Tony1337-bit/library/blob/main/lapi.lua"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-between p-4 bg-glass-200 hover:bg-glass-300 border border-glass-border rounded-lg transition-colors group"
