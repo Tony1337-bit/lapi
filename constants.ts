@@ -13,7 +13,8 @@ const STYLES = {
 // HELPER FUNCTIONS - Make creating content blocks easier
 // ============================================================================
 
-const code = (codeStr: string) => `<code class="${STYLES.inlineCode}">${codeStr}</code>`;
+const code = (codeStr: string) =>
+  `<code class="${STYLES.inlineCode}">${codeStr}</code>`;
 
 const text = (content: string) => ({ type: "text" as const, content });
 
@@ -24,7 +25,8 @@ const list = (items: string[]) => ({ type: "list" as const, items });
 const header = (text: string) => ({ type: "header" as const, header: [text] });
 
 // Add this with your other helpers:
-const link = (text: string, url: string) => `<a href="${url}" class="text-indigo-400 hover:text-indigo-300 underline">${text}</a>`;
+const link = (text: string, url: string) =>
+  `<a href="${url}" class="text-indigo-400 hover:text-indigo-300 underline">${text}</a>`;
 
 const subheader = (text: string) => ({
   type: "subheader" as const,
@@ -141,10 +143,30 @@ export const DOCS_DATA: Record<string, DocSection> = {
         { name: "min", type: "number", description: "Minimum value" },
         { name: "max", type: "number", description: "Maximum value" },
         { name: "init", type: "number", description: "Default value" },
-        { name: "show_tooltip", type: "boolean", description: "Boolean. true if the slider should display its current value." },
-        { name: "unit", type: "string", description: "	String that is two characters or less. This will be appended to the display value. For example, 'px' for pixels or '%' for a percentage." },
-        { name: "scale", type: "number", description: "The display value will be multiplied by this scale. For example, 0.1 will make a slider with the range [0-1800] show as 0.0-180.0 with one decimal place." },
-        { name: "tooltip", type: "string", description: "Table used to override the tooltip for the specified values. The key must be within min-max. The value is a string that will be shown instead of the numeric value whenever that value is selected." },
+        {
+          name: "show_tooltip",
+          type: "boolean",
+          description:
+            "Boolean. true if the slider should display its current value.",
+        },
+        {
+          name: "unit",
+          type: "string",
+          description:
+            "	String that is two characters or less. This will be appended to the display value. For example, 'px' for pixels or '%' for a percentage.",
+        },
+        {
+          name: "scale",
+          type: "number",
+          description:
+            "The display value will be multiplied by this scale. For example, 0.1 will make a slider with the range [0-1800] show as 0.0-180.0 with one decimal place.",
+        },
+        {
+          name: "tooltip",
+          type: "string",
+          description:
+            "Table used to override the tooltip for the specified values. The key must be within min-max. The value is a string that will be shown instead of the numeric value whenever that value is selected.",
+        },
       ]),
 
       // Selectable
@@ -378,7 +400,9 @@ slider:disabled(false)`),
         },
       ]),
       text("Registers a callback for a client event"),
-      text(`All ${link("supported events", "https://gamesense-docs.pages.dev/docs/events/aim_fire")} here`),
+      text(
+        `All ${link("supported events", "https://gamesense-docs.pages.dev/docs/events/aim_fire")} here`,
+      ),
 
       header("Events Unset"),
       codeBlock(`events.[event_name]:unset(function)`),
@@ -396,8 +420,272 @@ slider:disabled(false)`),
       list([
         "Designed for simplicity, not strict abstraction",
         "Works best as a helper layer, not a full framework",
-        "Safe to mix with raw ui, client, and entity calls"
-      ])
+        "Safe to mix with raw ui, client, and entity calls",
+      ]),
+    ],
+  },
+
+  filesystem: {
+    id: "filesystem",
+    title: "Filesystem",
+    description:
+      "Filesystem provides a Lua API for reading, writing, and managing files through the game's native VFileSystem interface.",
+    blocks: [
+      header("get_game_directory"),
+      codeBlock(`filesystem.get_game_directory()`),
+      text("Returns the absolute path to the game's root folder."),
+      codeBlock(
+        `local dir = filesystem.get_game_directory()\n-- "C:/Program Files/.../csgo"`,
+      ),
+
+      header("add_search_path"),
+      codeBlock(`filesystem.add_search_path(path, path_id, type)`),
+      paramTable([
+        {
+          name: "path",
+          type: "string",
+          description: "Absolute folder path to mount",
+        },
+        {
+          name: "path_id",
+          type: "string",
+          description: 'Name to identify this search path (e.g. "GAME")',
+        },
+        {
+          name: "type",
+          type: "int",
+          description: "Search path type flag, usually 0",
+        },
+      ]),
+      text(
+        "Mounts a folder under a named path ID, making it resolvable by other filesystem calls.",
+      ),
+
+      header("remove_search_path"),
+      codeBlock(`filesystem.remove_search_path(path, path_id)`),
+      paramTable([
+        {
+          name: "path",
+          type: "string",
+          description: "Absolute folder path to unmount",
+        },
+        {
+          name: "path_id",
+          type: "string",
+          description: "Search path name to remove",
+        },
+      ]),
+      text("Unmounts a previously registered search path."),
+
+      header("open"),
+      codeBlock(`filesystem.open(path, mode, path_id)`),
+      paramTable([
+        { name: "path", type: "string", description: "Relative file path" },
+        {
+          name: "mode",
+          type: "string",
+          description: 'File mode: "r", "w", "a", "rb", "wb", etc.',
+        },
+        {
+          name: "path_id",
+          type: "string",
+          description: "Search path to resolve the file under",
+        },
+      ]),
+      text(
+        "Opens a file and returns a handle. Returns nil if the file could not be opened.",
+      ),
+      text("Always pair with filesystem.close when done."),
+
+      header("close"),
+      codeBlock(`filesystem.close(handle)`),
+      paramTable([
+        {
+          name: "handle",
+          type: "userdata",
+          description: "File handle returned by filesystem.open",
+        },
+      ]),
+      text(
+        "Closes an open file handle. Always call this after reading or writing.",
+      ),
+
+      header("read"),
+      codeBlock(`filesystem.read(handle)`),
+      paramTable([
+        {
+          name: "handle",
+          type: "userdata",
+          description: "File handle opened in a readable mode",
+        },
+      ]),
+      text("Reads the entire file content and returns it as a string."),
+
+      header("write"),
+      codeBlock(`filesystem.write(handle, ...)`),
+      paramTable([
+        {
+          name: "handle",
+          type: "userdata",
+          description: "File handle opened in a writable mode",
+        },
+        {
+          name: "...",
+          type: "any",
+          description: "One or more values to write, concatenated together",
+        },
+      ]),
+      text(
+        "Writes one or more values to the file. All arguments are converted with tostring and joined.",
+      ),
+
+      header("get_size"),
+      codeBlock(`filesystem.get_size(handle)`),
+      paramTable([
+        { name: "handle", type: "userdata", description: "Open file handle" },
+      ]),
+      text("Returns the size of the open file in bytes."),
+
+      header("exists"),
+      codeBlock(`filesystem.exists(path, path_id)`),
+      paramTable([
+        {
+          name: "path",
+          type: "string",
+          description: "Relative file path to check",
+        },
+        {
+          name: "path_id",
+          type: "string",
+          description: "Search path to resolve under",
+        },
+      ]),
+      text("Returns true if the file exists, false otherwise."),
+
+      header("get_time"),
+      codeBlock(`filesystem.get_time(path, path_id)`),
+      paramTable([
+        { name: "path", type: "string", description: "Relative file path" },
+        {
+          name: "path_id",
+          type: "string",
+          description: "Search path to resolve under",
+        },
+      ]),
+      text(
+        "Returns the last modification time of the file as a Unix timestamp.",
+      ),
+
+      header("create_directory"),
+      codeBlock(`filesystem.create_directory(path, path_id)`),
+      paramTable([
+        {
+          name: "path",
+          type: "string",
+          description: "Directory path to create (supports nested paths)",
+        },
+        {
+          name: "path_id",
+          type: "string",
+          description: "Search path to resolve under",
+        },
+      ]),
+      text(
+        "Creates the full directory hierarchy. Safe to call even if the folder already exists.",
+      ),
+
+      header("is_directory"),
+      codeBlock(`filesystem.is_directory(path, path_id)`),
+      paramTable([
+        { name: "path", type: "string", description: "Path to check" },
+        {
+          name: "path_id",
+          type: "string",
+          description: "Search path to resolve under",
+        },
+      ]),
+      text("Returns true if the given path is a directory."),
+
+      header("remove"),
+      codeBlock(`filesystem.remove(path, path_id)`),
+      paramTable([
+        {
+          name: "path",
+          type: "string",
+          description: "Relative file path to delete",
+        },
+        {
+          name: "path_id",
+          type: "string",
+          description: "Search path to resolve under",
+        },
+      ]),
+      text("Permanently deletes a file."),
+
+      header("rename"),
+      codeBlock(`filesystem.rename(old_path, new_path, path_id)`),
+      paramTable([
+        { name: "old_path", type: "string", description: "Current file path" },
+        { name: "new_path", type: "string", description: "New file path" },
+        {
+          name: "path_id",
+          type: "string",
+          description: "Search path to resolve under",
+        },
+      ]),
+      text("Renames or moves a file. Returns true on success."),
+
+      header("list_files"),
+      codeBlock(`filesystem.list_files(filesystem, path)`),
+      paramTable([
+        {
+          name: "filesystem",
+          type: "table",
+          description: "Pass the filesystem table itself as self",
+        },
+        {
+          name: "path",
+          type: "string",
+          description: "Relative folder path to list",
+        },
+      ]),
+      text(
+        "Returns a table of file names (not directories) found inside the given folder.",
+      ),
+      codeBlock(
+        `local files = filesystem.list_files(filesystem, "cfg/mymod")\nfor _, name in ipairs(files) do\n    print(name)\nend`,
+      ),
+
+      header("find_first / find_next / find_close"),
+      codeBlock(
+        `filesystem.find_first(path)\nfilesystem.find_next(handle)\nfilesystem.find_is_directory(handle)\nfind_close(handle)`,
+      ),
+      paramTable([
+        {
+          name: "path",
+          type: "string",
+          description: 'Glob path, e.g. game_dir .. "\\\\cfg\\\\mymod\\\\*"',
+        },
+        {
+          name: "handle",
+          type: "userdata",
+          description: "Handle returned by find_first",
+        },
+      ]),
+      text(
+        "Low-level directory iteration. find_first returns a handle and the first file name. Iterate with find_next until it returns nil, then call find_close.",
+      ),
+      codeBlock(
+        `local handle, name = filesystem.find_first(dir .. "\\\\cfg\\\\mymod\\\\*")\nif handle then\n    repeat\n        print(name)\n        name = filesystem.find_next(handle[0])\n    until not name\n    find_close(handle[0])\nend`,
+      ),
+
+      header("Note"),
+      list([
+        'All paths are relative to the search path ID used (e.g. "GAME" resolves inside the csgo folder)',
+        "Always close file handles after use to avoid leaks",
+        "find_close is a bare global, not filesystem.find_close — this is a known quirk of the source",
+        "Safe to mix with raw vtable_bind calls and other gamesense APIs",
+      ]),
     ],
   },
 };
@@ -424,7 +712,7 @@ export const NAV_ITEMS: NavItem[] = [
       { id: "config_system", label: "Config System" },
       { id: "utils", label: "Utils" },
       { id: "events_wrapper", label: "Events Wrapper" },
-      // { id: "rage-logic", label: "Ragebot" },
+      { id: "filesystem", label: "File System" },
     ],
   },
 ];
